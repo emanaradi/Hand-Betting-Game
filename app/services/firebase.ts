@@ -8,12 +8,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyClg4v4Of8wx9HxCbhkBTuOM5L-bixojVg",
-  authDomain: "mahjong-betting-game.firebaseapp.com",
-  projectId: "mahjong-betting-game",
-  storageBucket: "mahjong-betting-game.firebasestorage.app",
-  messagingSenderId: "833580241920",
-  appId: "1:833580241920:web:996b5ab718bc6a108c74e5",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGEBUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
