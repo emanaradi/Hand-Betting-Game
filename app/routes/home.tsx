@@ -4,6 +4,8 @@ import Aurora from "~/components/Aurora";
 import { Link } from "react-router";
 import React from "react";
 import { motion } from "framer-motion";
+import { useGameStore } from "~/store/gameStore";
+import type { Gender } from "~/types/game";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,9 +15,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
+  const startGame = useGameStore((state) => state.startGame);
+
   const [modalOpen, setModalOpen] = React.useState(true);
-  const [gender, setGender] = React.useState("");
-  const [name, setName] = React.useState("");
+  const [gender, setGender] = React.useState<string>("");
+  const [name, setName] = React.useState<string>("");
 
   return (
     <>
@@ -91,6 +95,7 @@ export default function Home() {
                   disabled={!name || !gender}
                 >
                   <Link
+                    onClick={() => startGame(name, gender as Gender)}
                     className={
                       !name || !gender
                         ? "cursor-not-allowed pointer-events-none opacity-40"
