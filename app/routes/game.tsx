@@ -61,7 +61,6 @@ export default function Game() {
   const currentHand = gameState?.currentHand ?? [];
   const history = gameState?.history ?? [];
 
-  console.log(gameState?.history);
 
   return (
     <>
