@@ -26,6 +26,10 @@ A browser-based, Mahjong-tile betting game built with **React Router 8**, **Reac
 | Backend / data   | Firebase (Firestore) for the leaderboard |
 | Build tool       | Vite 8                                   |
 
+## Demo
+
+![Demo](./Demo.gif)
+
 ## Prerequisites
 
 Before running the project locally, make sure you have:
