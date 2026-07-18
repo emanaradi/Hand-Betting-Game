@@ -1,11 +1,13 @@
 import type { Route } from "./+types/home";
 import Typewriter from "typewriter-effect";
 import Aurora from "~/components/Aurora";
-import { Link } from "react-router";
-import React from "react";
+import { useNavigate } from "react-router";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useGameStore } from "~/store/gameStore";
 import type { Gender } from "~/types/game";
+import { getTopScores } from "~/services/leaderboard";
+import Leaderboard from "~/components/Leaderboard";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,11 +17,23 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
+  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchLeaderboard() {
+      const scores = await getTopScores();
+      setLeaderboardData(scores);
+    }
+
+    fetchLeaderboard();
+  }, []);
+
+  const navigate = useNavigate();
   const startGame = useGameStore((state) => state.startGame);
 
-  const [modalOpen, setModalOpen] = React.useState(true);
-  const [gender, setGender] = React.useState<string>("");
-  const [name, setName] = React.useState<string>("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [gender, setGender] = useState<string>("");
+  const [name, setName] = useState<string>("");
 
   return (
     <>
@@ -93,19 +107,12 @@ export default function Home() {
                 <button
                   className="flex bg-[#CB96AB] p-3 pr-7 pl-7 rounded-full font-roboto shadow-md shadow-black/50 hover:bg-[#BE709A] transition duration-300 ease-in-out cursor-pointer hover:text-white hover:scale-110  items-center justify-center text-[#2A2531]   disabled:hover:bg-[#CB96AB] disabled:hover:text-[#2A2531] disabled:hover:scale-100 disabled:cursor-not-allowed disabled:opacity-40"
                   disabled={!name || !gender}
+                  onClick={() => {
+                    navigate("/game", { state: { name, gender } });
+                    startGame(name, gender as Gender);
+                  }}
                 >
-                  <Link
-                    onClick={() => startGame(name, gender as Gender)}
-                    className={
-                      !name || !gender
-                        ? "cursor-not-allowed pointer-events-none opacity-40"
-                        : ""
-                    }
-                    to="/game"
-                    state={{ name, gender }}
-                  >
-                    Start Game
-                  </Link>
+                  Start Game
                 </button>
               </div>
             </motion.div>
@@ -133,7 +140,7 @@ export default function Home() {
                 </motion.h1>
               </div>
 
-              <p className="w-full text-left font-mono text-md text-[#CB96AB] text-center">
+              <div className="w-full text-left font-mono text-md text-[#CB96AB] text-center">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 0 }}
@@ -152,8 +159,8 @@ export default function Home() {
                     }}
                   />
                 </motion.div>
-              </p>
-              <div className="flex flex-row gap-5 justify-start -tems-center">
+              </div>
+              <div className="flex flex-row gap-5 justify-start items-center">
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 0 }}
@@ -193,72 +200,21 @@ export default function Home() {
         </div>
         <div
           id="leaderboard"
-          className="isolate flex flex-col items-center justify-center pb-20 pt-20"
+          className="isolate flex flex-col items-center justify-center pb-20"
         >
           <h3 className="text-roboto text-[#F6F6F3] font-bold text-[1.6rem]">
             Leaderboard
           </h3>
 
-          <div className="flex flex-row">
-            <div className="flex flex-col justify-center items-center text-[#F6F6F3]/90 font-roboto text-md mt-40 gap-4">
-              <p>2</p>
-              <div className="border border-2 border-[#BE709A]/60 rounded-full w-50 h-50 bg-[#17141A]/50 shadow-md"></div>
-              <p>Second</p>
-            </div>
-
-            <div className="flex flex-col justify-center items-center text-[#F6F6F3] font-roboto text-md gap-4">
-              <svg
-                width="40"
-                height="40"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                stroke="#c8ce69"
-              >
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></g>
-                <g id="SVGRepo_iconCarrier">
-                  <path
-                    d="M19.6872 14.0931L19.8706 12.3884C19.9684 11.4789 20.033 10.8783 19.9823 10.4999L20 10.5C20.8284 10.5 21.5 9.82843 21.5 9C21.5 8.17157 20.8284 7.5 20 7.5C19.1716 7.5 18.5 8.17157 18.5 9C18.5 9.37466 18.6374 9.71724 18.8645 9.98013C18.5384 10.1814 18.1122 10.606 17.4705 11.2451L17.4705 11.2451C16.9762 11.7375 16.729 11.9837 16.4533 12.0219C16.3005 12.043 16.1449 12.0213 16.0038 11.9592C15.7492 11.847 15.5794 11.5427 15.2399 10.934L13.4505 7.7254C13.241 7.34987 13.0657 7.03557 12.9077 6.78265C13.556 6.45187 14 5.77778 14 5C14 3.89543 13.1046 3 12 3C10.8954 3 10 3.89543 10 5C10 5.77778 10.444 6.45187 11.0923 6.78265C10.9343 7.03559 10.759 7.34984 10.5495 7.7254L8.76006 10.934C8.42056 11.5427 8.25081 11.847 7.99621 11.9592C7.85514 12.0213 7.69947 12.043 7.5467 12.0219C7.27097 11.9837 7.02381 11.7375 6.5295 11.2451C5.88787 10.606 5.46156 10.1814 5.13553 9.98012C5.36264 9.71724 5.5 9.37466 5.5 9C5.5 8.17157 4.82843 7.5 4 7.5C3.17157 7.5 2.5 8.17157 2.5 9C2.5 9.82843 3.17157 10.5 4 10.5L4.01771 10.4999C3.96702 10.8783 4.03162 11.4789 4.12945 12.3884L4.3128 14.0931C4.41458 15.0393 4.49921 15.9396 4.60287 16.75H19.3971C19.5008 15.9396 19.5854 15.0393 19.6872 14.0931Z"
-                    fill="#dee88c"
-                  ></path>
-                  <path
-                    d="M10.9121 21H13.0879C15.9239 21 17.3418 21 18.2879 20.1532C18.7009 19.7835 18.9623 19.1172 19.151 18.25H4.84896C5.03765 19.1172 5.29913 19.7835 5.71208 20.1532C6.65817 21 8.07613 21 10.9121 21Z"
-                    fill="#dee88c"
-                  ></path>
-                </g>
-              </svg>
-              <p>1</p>
-              <div className="border border-2 border-[#BE709A]/60 rounded-full w-50 h-50 bg-[#17141A]/50 shadow-md"></div>
-              <p>First</p>
-            </div>
-
-            <div className="flex flex-col justify-center items-center text-[#F6F6F3]/80 font-roboto text-md mt-40 gap-4">
-              <p>3</p>
-              <div className="border border-2 border-[#BE709A]/60 rounded-full w-50 h-50 bg-[#17141A]/50 shadow-md"></div>
-              <p>Third</p>
-            </div>
-          </div>
-
           <div className="flex flex-col gap-4 justify-center items-center mt-10">
-            <div className="bg-[#17141A]/50 border rounded-full border-[#BE709A]/50 flex flex-row gap-5 w-150 h-16 justify-between items-center p-8 text-[#F6F6F3]/60 font-roboto text-md">
-              <div className="flex gap-20">
-                <p>4.</p>
-                <p>Eman Alaradi</p>
-              </div>
-              <p>1233,678 p</p>
-            </div>
-
-            <div className="bg-[#17141A]/50 border rounded-full border-[#BE709A]/50 flex flex-row gap-5 w-150 h-16  justify-start items-center p-8 text-[#F6F6F3]/60 font-roboto text-md">
-              <div className="flex gap-20">
-                <p>5.</p>
-                <p>Fatima Alaradi</p>
-              </div>
-            </div>
+            {leaderboardData.reverse().map((item, index) => (
+              <Leaderboard
+                key={item.id}
+                rank={(index + 1) as 1 | 2 | 3 | 4 | 5}
+                score={item.score}
+                name={item.playerName}
+              />
+            ))}
           </div>
         </div>
       </div>

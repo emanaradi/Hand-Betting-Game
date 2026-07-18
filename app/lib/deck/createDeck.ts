@@ -27,8 +27,9 @@ export function createDeck(deckNumber = 1): Tile[] {
   for (const suit of NUMBER_SUITS) {
     for (let rank = 1; rank <= 9; rank++) {
       for (let copy = 1; copy <= 4; copy++) {
+        let id = 0;
         deck.push({
-          id: `${suit}-${rank}-${copy}`,
+          id: `${suit}-${rank}-${copy}-${id++}`,
           suit,
           rank: rank as Rank,
         });

@@ -35,6 +35,7 @@ export class DeckManager {
   discard(tiles: Tile[]) {
     this.discardPile.push(...tiles);
   }
+  
   private reshuffle() {
     this.reshuffleCount++;
     const freshDeck = createDeck(this.deckNumber + 1);
@@ -52,6 +53,7 @@ export class DeckManager {
   getDiscardedPileCount(): number {
     return this.discardPile.length;
   }
+
   hasReachedShuffleLimit(): boolean {
     return this.reshuffleCount >= 3;
   }

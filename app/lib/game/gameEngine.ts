@@ -26,6 +26,11 @@ export class GameEngine {
       previousValue: 0,
       score: 0,
 
+      history: [],
+
+      drawPileCount: 0,
+      discardPileCount: 0,
+
       honorValues: {
         east: 5,
         south: 5,
@@ -48,6 +53,8 @@ export class GameEngine {
 
     this.state.currentHand = hand;
     this.state.currentValue = value;
+
+    this.updatePileCounts();
   }
 
   bet(choice: BetChoice) {
@@ -59,11 +66,31 @@ export class GameEngine {
 
     const oldHand = this.state.currentHand;
 
+    this.deck.discard(oldHand);
+
     const newHand = this.deck.draw(3);
 
     const newValue = calculateHandValue(newHand, this.state.honorValues);
 
     const won = compareHands(oldValue, newValue, choice);
+
+    this.state.history.push({
+      hand: [...oldHand],
+      value: oldValue,
+      won,
+    });
+
+    if (won) {
+      if (oldValue > newValue) {
+        this.state.score += oldValue + 10;
+      } else {
+        this.state.score += newValue + 10;
+      }
+    } else {
+      if (this.state.score > 10) {
+        this.state.score -= 10;
+      }
+    }
 
     this.state.honorValues = updateTileValues(
       newHand,
@@ -71,11 +98,13 @@ export class GameEngine {
       won,
     );
 
-    this.state.previousHand = oldHand;
+    this.state.previousHand = [...oldHand];
     this.state.previousValue = oldValue;
 
     this.state.currentHand = newHand;
     this.state.currentValue = newValue;
+
+    this.updatePileCounts();
 
     this.checkGameOver();
   }
@@ -94,8 +123,17 @@ export class GameEngine {
     }
   }
 
+  private updatePileCounts() {
+    this.state.drawPileCount = this.deck.getDrawPileCount();
+    this.state.discardPileCount = this.deck.getDiscardedPileCount();
+  }
+
   getState(): GameState {
-    return { ...this.state };
+    return {
+      ...this.state,
+      currentHand: [...this.state.currentHand],
+      previousHand: [...this.state.previousHand],
+    };
   }
 
   setPlayerInfo(name: string, gender: Gender) {

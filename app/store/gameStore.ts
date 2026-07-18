@@ -19,12 +19,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   gameState: null,
 
   startGame: (playerName, gender) => {
-    const engine = get().engine;
+    const newEngine = new GameEngine();
 
-    engine.setPlayerInfo(playerName, gender);
-    engine.start();
+    newEngine.setPlayerInfo(playerName, gender);
+    newEngine.start();
 
-    set({ gameState: engine.getState() });
+    set({ engine: newEngine, gameState: newEngine.getState() });
   },
 
   betHigher: () => {
